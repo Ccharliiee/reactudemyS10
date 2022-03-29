@@ -1,8 +1,15 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, {
+  useState,
+  useEffect,
+  useReducer,
+  useContext,
+  useRef,
+} from "react";
 
 import Card from "../UI/Card/Card";
 import classes from "./Login.module.css";
 import Button from "../UI/Button/Button";
+import AuthContext from "../../store/authContext.js";
 
 const emailReducer = (emailState, action) => {
   if (action.type === "EMAIL_INPUT") {
@@ -59,17 +66,22 @@ const Login = (props) => {
     isValid: undefined,
   });
 
+  const authCtx = useContext(AuthContext);
+
   const { isValid: emailValidAlias } = emailState;
-  const { isValid: passworValidAlias } = passwordState;
+  const { isValid: passwordValidAlias } = passwordState;
+
+  const emailInputRef = useRef();
+  const passwordInputRef = useRef();
 
   useEffect(() => {
     const formValidater = setTimeout(() => {
-      setFormIsValid(emailValidAlias && passworValidAlias);
+      setFormIsValid(emailValidAlias && passwordValidAlias);
     }, 200);
     return () => {
       clearTimeout(formValidater);
     };
-  }, [emailValidAlias, passworValidAlias]);
+  }, [emailValidAlias, passwordValidAlias]);
 
   const emailChangeHandler = (event) => {
     dispatchEmail({ type: "EMAIL_INPUT", emailAddr: event.target.value });
@@ -92,7 +104,13 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(emailState.emailAddr, passwordState.password);
+    if (formIsValid) {
+      authCtx.onLogin(emailState.emailAddr, passwordState.password);
+    } else if (!emailValidAlias) {
+      emailInputRef.current.focus();
+    } else {
+      passwordInputRef.current.focus();
+    }
   };
 
   return (
@@ -105,6 +123,7 @@ const Login = (props) => {
         >
           <label htmlFor="email">E-Mail</label>
           <input
+            ref={emailInputRef}
             type="email"
             id="email"
             value={emailState.emailAddr}
@@ -119,6 +138,7 @@ const Login = (props) => {
         >
           <label htmlFor="password">Password</label>
           <input
+            ref={passwordInputRef}
             type="password"
             id="password"
             value={passwordState.password}
@@ -127,7 +147,7 @@ const Login = (props) => {
           />
         </div>
         <div className={classes.actions}>
-          <Button type="submit" className={classes.btn} disabled={!formIsValid}>
+          <Button type="submit" className={classes.btn}>
             Login
           </Button>
         </div>
