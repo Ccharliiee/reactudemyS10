@@ -10,6 +10,7 @@ import Card from "../UI/Card/Card";
 import classes from "./Login.module.css";
 import Button from "../UI/Button/Button";
 import AuthContext from "../../store/authContext.js";
+import Input from "../UI/Input/Input";
 
 const emailReducer = (emailState, action) => {
   if (action.type === "EMAIL_INPUT") {
@@ -107,45 +108,35 @@ const Login = (props) => {
     if (formIsValid) {
       authCtx.onLogin(emailState.emailAddr, passwordState.password);
     } else if (!emailValidAlias) {
-      emailInputRef.current.focus();
+      emailInputRef.current.inputFocus();
     } else {
-      passwordInputRef.current.focus();
+      passwordInputRef.current.inputFocus();
     }
   };
 
   return (
     <Card className={classes.login}>
       <form onSubmit={submitHandler}>
-        <div
-          className={`${classes.control} ${
-            emailState.isValid === false ? classes.invalid : ""
-          }`}
-        >
-          <label htmlFor="email">E-Mail</label>
-          <input
-            ref={emailInputRef}
-            type="email"
-            id="email"
-            value={emailState.emailAddr}
-            onChange={emailChangeHandler}
-            onBlur={validateEmailHandler}
-          />
-        </div>
-        <div
-          className={`${classes.control} ${
-            passwordState.isValid === false ? classes.invalid : ""
-          }`}
-        >
-          <label htmlFor="password">Password</label>
-          <input
-            ref={passwordInputRef}
-            type="password"
-            id="password"
-            value={passwordState.password}
-            onChange={passwordChangeHandler}
-            onBlur={validatePasswordHandler}
-          />
-        </div>
+        <Input
+          isValid={emailValidAlias}
+          ref={emailInputRef}
+          type="email"
+          id="email"
+          label="Email"
+          value={emailState.password}
+          onChange={emailChangeHandler}
+          onBlur={validateEmailHandler}
+        />
+        <Input
+          isValid={passwordValidAlias}
+          ref={passwordInputRef}
+          type="password"
+          id="password"
+          label="Password"
+          value={passwordState.password}
+          onChange={passwordChangeHandler}
+          onBlur={validatePasswordHandler}
+        />
         <div className={classes.actions}>
           <Button type="submit" className={classes.btn}>
             Login
